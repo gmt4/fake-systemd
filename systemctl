@@ -391,6 +391,14 @@ Unit File Commands:
         /etc/systemd/system/
         /usr/lib/systemd/system/
     )
+    
+    if [ -z "$UNITS" ]; then
+        case "$ACTION" in
+            '') echo -e "$USAGE" ; exit 0 ;;
+            -h ) echo -e "$USAGE" ; exit 0 ;;
+            --help ) echo -e  "$USAGE" ; exit 0 ;;
+        esac
+    fi
 
     for UNIT in ${UNITS[@]}; do
         exec_action $ACTION $UNIT
