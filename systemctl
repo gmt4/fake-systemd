@@ -3,6 +3,8 @@
 # lower vars:     in local function
 # camelcase vars: systemd params var
 
+startstopdaemon=`which start-stop-daemon`
+
 function get_unit_file(){
     for dir in ${UNIT_PATHS[@]} ; do
         if [ -f "${dir}${UNIT}" ] ; then
@@ -135,7 +137,7 @@ function action_start(){
 
         [ -f "$EnvironmentFile" ] && source "$EnvironmentFile"
 
-        cmd=("/usr/bin/start-stop-daemon --background --start --pidfile $PIDFile $makepid")
+        cmd=("$startstopdaemon --background --start --pidfile $PIDFile $makepid")
 
         [ -f "$WorkingDirectory" ] && cmd+=("--chdir $WorkingDirectory")
         [ -n "$User" ] && cmd+=("--chuid $User")
@@ -180,7 +182,7 @@ function action_stop(){
 
     # Stop service 
     if [ -z "$ExecStop" ] ; then
-        cmd="/usr/bin/start-stop-daemon --stop --pidfile $PIDFile"
+        cmd="$startstopdaemon --stop --pidfile $PIDFile"
         [ -n "$User" ] && cmd+=("--chuid $User")
     else
         cmd="$ExecStop"
