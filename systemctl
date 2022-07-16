@@ -70,7 +70,7 @@ function get_unit_wants() {
                 ls -1 "${DIR}${UNIT}.wants/" | tr '\n' ' '
             fi
         done
-    
+
         # Print wants from unit-file
         read_option Wants $UNIT_FILE
     )`
@@ -82,7 +82,7 @@ function action_start(){
         exec_action start $unit
     done
 
-    # Load options 
+    # Load options
     local User=$(read_option User)
     local Type=$(read_option Type)
     local PIDFile=$(read_option PIDFile)
@@ -102,8 +102,8 @@ function action_start(){
     # ExecStart= specified. They will be executed in order until either they
     # are all successful or one of them fails.
     # Note that systemd will consider the unit to be in the state "starting"
-    # until the program has terminated, so ordered dependencies will wait 
-    # for the program to finish before starting themselves. The unit will 
+    # until the program has terminated, so ordered dependencies will wait
+    # for the program to finish before starting themselves. The unit will
     # revert to the "inactive" state after the execution is done, never
     # reaching the "active" state. That means another request to start
     # the unit will perform the action again.
@@ -131,7 +131,7 @@ function action_start(){
 
             mkdir -p $PIDdir
             [ -n "$User" ] && chown $User $PIDdir
-            PIDFile="${PIDdir}/${UNIT_NAME}.pid" 
+            PIDFile="${PIDdir}/${UNIT_NAME}.pid"
             makepid="--make-pidfile"
         fi
 
@@ -161,7 +161,7 @@ function action_start(){
 }
 
 function action_stop(){
-    # Load options 
+    # Load options
     local User=$(read_option User)
     local Type=$(read_option Type)
     local PIDFile=$(read_option PIDFile)
@@ -180,7 +180,7 @@ function action_stop(){
     done
 
 
-    # Stop service 
+    # Stop service
     if [ -z "$ExecStop" ] ; then
         cmd="$startstopdaemon --stop --pidfile $PIDFile"
         [ -n "$User" ] && cmd+=("--chuid $User")
@@ -216,7 +216,7 @@ function action_enable(){
         >&2 echo "Unit $UNIT have no WantedBy option."
         exit 1
     fi
-    
+
     local WANTEDBY_DIR="/etc/systemd/system/$WantedBy.wants"
 
     if [ ! -f "$WANTEDBY_DIR/$UNIT_FULL" ] ; then
@@ -225,7 +225,7 @@ function action_enable(){
         ln -s $UNIT_FILE $WANTEDBY_DIR/$UNIT_FULL
     fi
 }
-    
+
 function action_disable(){
     local WantedBy=$(read_option WantedBy)
 
@@ -393,7 +393,7 @@ Unit File Commands:
         /etc/systemd/system/
         /usr/lib/systemd/system/
     )
-    
+
     if [ -z "$UNITS" ]; then
         case "$ACTION" in
             '') echo -e "$USAGE" ; exit 0 ;;
