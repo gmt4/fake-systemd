@@ -123,7 +123,7 @@ function action_start(){
         while IFS=$'\n' read -a i; do
             $(eval echo "$i")
         done  <<< "${ExecStartPost[@]}"
-    elif [ -z $Type ] || [[ "${Type,,}" == *"simple"* ]] || [[ "${Type,,}" == *"notify"* ]] || [[ "${Type,,}" == *"forking"* ]] ; then
+    elif [ -z "$Type" ] || [[ "${Type,,}" == *"simple"* ]] || [[ "${Type,,}" == *"notify"* ]] || [[ "${Type,,}" == *"forking"* ]] ; then
 
         makepid=""
         if [ -z "$PIDFile" ]; then
@@ -212,7 +212,7 @@ function action_restart(){
 function action_enable(){
     local WantedBy=$(read_option WantedBy)
 
-    if [ -z $WantedBy ] ; then
+    if [ -z "$WantedBy" ] ; then
         >&2 echo "Unit $UNIT have no WantedBy option."
         exit 1
     fi
@@ -229,7 +229,7 @@ function action_enable(){
 function action_disable(){
     local WantedBy=$(read_option WantedBy)
 
-    if [ -z $WantedBy ] ; then
+    if [ -z "$WantedBy" ] ; then
         >&2 echo "Unit $UNIT have no WantedBy option."
         exit 1
     fi
@@ -246,7 +246,7 @@ function action_disable(){
 function action_isenabled(){
     local WantedBy=$(read_option WantedBy)
 
-    if [ -z $WantedBy ] ; then
+    if [ -z "$WantedBy" ] ; then
         echo "unknown"
     else
         local WANTEDBY_DIR="/etc/systemd/system/$WantedBy.wants"
@@ -311,7 +311,7 @@ function action_status(){
     echo "   Loaded: loaded ($UNIT_FILE; $isenabled; vendor preset: not_implemented)"
     echo "   Active: $status"
     if [ $isactive == "active" ]; then
-        if [ ! -z $Documentation ]; then
+        if [ ! -z "$Documentation" ]; then
           echo "     Docs: $Documentation"
         fi
         echo " Main PID: $pid ($(basename ${pscmd[0]}))"
@@ -343,7 +343,7 @@ function exec_action(){
     # https://www.freedesktop.org/software/systemd/man/systemd.service.html
     local MAINPID=$(_get_pid)
 
-    if [ -z $UNIT_FILE ] ; then
+    if [ -z "$UNIT_FILE" ] ; then
         >&2 echo "Failed to $ACTION $UNIT: Unit $UNIT not found."
         exit 1
     else
