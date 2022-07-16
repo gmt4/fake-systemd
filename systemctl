@@ -294,22 +294,29 @@ function _get_pid(){
 function action_status(){
     local Description=$(read_option Description)
     local Documentation=$(read_option Documentation)
+
+    local color_red="\033[0;31m"
+    local color_green="\033[0;32m"
+    local color_reset="\033[0m"
+    local color_curr="$color_red"
+
     pid=$(_get_pid)
     isenabled=$(action_isenabled)
     isactive=$(action_isactive)
     status="inactive (dead)"
     if [ $isactive == "failed" ]; then
-        status="failed (Result: not_implemented)"
+        status="${color_curr}failed${color_reset} (Result: not_implemented)"
     elif [ $isactive == "active" ]; then
+        color_curr=$color_green
         psdate=$(ps -p $pid -o lstart=)
         pscmd=($(ps -p $pid -o cmd=))
         psmem=$(ps -p $pid -o %mem= | tr -d ' ')
-        status="active (running) since $psdate"
+        status="${color_curr}active (running)${color_reset} since $psdate"
     fi
 
-    echo "● $UNIT - $Description"
-    echo "   Loaded: loaded ($UNIT_FILE; $isenabled; vendor preset: not_implemented)"
-    echo "   Active: $status"
+    echo -e "${color_curr}●${color_reset} $UNIT - $Description"
+    echo -e "   Loaded: loaded ($UNIT_FILE; $isenabled; vendor preset: not_implemented)"
+    echo -e "   Active: $status"
     if [ $isactive == "active" ]; then
         if [ ! -z "$Documentation" ]; then
           echo "     Docs: $Documentation"
