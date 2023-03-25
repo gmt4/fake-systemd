@@ -3,7 +3,7 @@
 # lower vars:     in local function
 # camelcase vars: systemd params var
 
-startstopdaemon=`which start-stop-daemon`
+startstopdaemon=$(which start-stop-daemon)
 
 function get_unit_file(){
     for dir in ${UNIT_PATHS[@]} ; do
@@ -22,13 +22,13 @@ function read_option(){
     local option="$1"
 
     value="$(grep '^'$option'[= ]' "$UNIT_FILE" | cut -d '=' -f2- | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
-    value="`
+    value="$(
         echo $value |
         sed -e "s/%[i]/$UNIT_INSTANCE/g" \
             -e "s/%[I]/\"$UNIT_INSTANCE\"/g" \
             -e "s/%[n]/$UNIT_FULL/g" \
             -e "s/%[N]/\"$UNIT_FULL\"/g"
-    `"
+    )"
     # TODO: Add more options from:
     # https://www.freedesktop.org/software/systemd/man/systemd.unit.html#Specifiers
 
@@ -338,13 +338,13 @@ function exec_action(){
     local UNIT_NAME=$(echo $UNIT | cut -d '.' -f1)
 
     if [[ $UNIT =~ '@' ]] ; then
-        local UNIT_INSTANCE=`echo $UNIT | cut -d'@' -f2- | cut -d. -f1`
-        local UNIT=`echo $UNIT | sed "s/$UNIT_INSTANCE//"`
+        local UNIT_INSTANCE="$(echo "$UNIT" | cut -d'@' -f2- | cut -d. -f1)"
+        local UNIT="$(echo $UNIT | sed "s/$UNIT_INSTANCE//")"
     fi
 
-    local UNIT_FILE=`get_unit_file $UNIT`
-    local UNIT_FULL=`echo $UNIT | sed "s/@/@$UNIT_INSTANCE/"`
-    local UNIT_WANTS=(`get_unit_wants $UNIT`)
+    local UNIT_FILE="$(get_unit_file "$UNIT")"
+    local UNIT_FULL="$(echo $UNIT | sed "s/@/@$UNIT_INSTANCE/")"
+    local UNIT_WANTS=($(get_unit_wants "$UNIT"))
 
     # Systemd env variables
     # https://www.freedesktop.org/software/systemd/man/systemd.service.html
