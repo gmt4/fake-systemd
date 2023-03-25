@@ -267,7 +267,7 @@ function action_isactive(){
     [ "$pid" == "-1" ] && echo "unknown" && exit 3
 
     # check if the pid exists - systemctl returns 3
-    kill -0 $pid > /dev/null 2>&1
+    [ -r /proc/$pid/status ] || kill -0 $pid > /dev/null 2>&1
     if [ $? -eq 0 ]; then
         echo "active"
         exit 0
@@ -349,6 +349,11 @@ function exec_action(){
     fi
 
     local UNIT_FILE="$(get_unit_file "$UNIT")"
+    if [ ! -f "$UNIT_FILE" ]
+    then
+        echo "Unit $UNIT could not be found."
+        return
+    fi
     local UNIT_FULL="$(echo $UNIT | sed "s/@/@$UNIT_INSTANCE/")"
     local UNIT_WANTS=($(get_unit_wants "$UNIT"))
 
