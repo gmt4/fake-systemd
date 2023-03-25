@@ -397,6 +397,7 @@ Unit File Commands:
     local ACTION="$1"
     local UNITS="${@:2}"
     local UNIT_PATHS=(
+        /lib/systemd/system/
         /etc/systemd/system/
         /usr/lib/systemd/system/
     )
