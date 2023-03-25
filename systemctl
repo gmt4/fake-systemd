@@ -281,7 +281,13 @@ function _get_pid(){
     local PIDFile=$(read_option PIDFile)
 
     # set default pifile
-    [ -z "$PIDFile" ] && PIDFile="/run/${UNIT_NAME}/${UNIT_NAME}.pid"
+    if [ -z "$PIDFile" ];
+    then
+        for PIDFile in "/run/${UNIT_NAME}.pid" "/run/${UNIT_NAME}/${UNIT_NAME}.pid"
+        do
+            [ -f "$PIDFile" ] && break
+        done
+    fi
 
     # now check if the pidfile exists
     if [ ! -f "$PIDFile" ]; then
