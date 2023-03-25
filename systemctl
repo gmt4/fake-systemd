@@ -1,9 +1,11 @@
 #!/bin/bash
+#
 # upper vars:     like UNIT* are in exec_action context
 # lower vars:     in local function
 # camelcase vars: systemd params var
+#
 
-startstopdaemon=$(which start-stop-daemon)
+startstopdaemon="$(which start-stop-daemon)"
 
 function get_unit_file(){
     for dir in ${UNIT_PATHS[@]} ; do
@@ -364,24 +366,24 @@ function exec_action(){
     if [ -z "$UNIT_FILE" ] ; then
         >&2 echo "Failed to $ACTION $UNIT: Unit $UNIT not found."
         exit 1
-    else
-        case "$ACTION" in
-            status )    action_status ;;
-            start )     action_start ;;
-            stop )      action_stop ;;
-            restart )   action_restart ;;
-            enable )    action_enable ;;
-            disable )   action_disable ;;
-            is-active ) action_isactive ;;
-            is-enabled ) action_isenabled ;;
-            help ) >&2 echo "This command expects one or more unit names. Did you mean --help?" ; exit 1 ;;
-            -h ) echo -e "$USAGE" ; exit 0 ;;
-            --help ) echo -e  "$USAGE" ; exit 0 ;;
-            # exit 0 if unknown operation to avoid errors
-            # like mask, unmask etc
-            * ) >&2 echo "Unknown operation '$ACTION'" ; exit 0 ;;
-        esac
     fi
+
+    case "$ACTION" in
+        status )    action_status ;;
+        start )     action_start ;;
+        stop )      action_stop ;;
+        restart )   action_restart ;;
+        enable )    action_enable ;;
+        disable )   action_disable ;;
+        is-active ) action_isactive ;;
+        is-enabled ) action_isenabled ;;
+        help ) >&2 echo "This command expects one or more unit names. Did you mean --help?" ; exit 1 ;;
+        -h ) echo -e "$USAGE" ; exit 0 ;;
+        --help ) echo -e  "$USAGE" ; exit 0 ;;
+        # exit 0 if unknown operation to avoid errors
+        # like mask, unmask etc
+        * ) >&2 echo "Unknown operation '$ACTION'" ; exit 0 ;;
+    esac
 }
 
 function main(){
