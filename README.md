@@ -27,28 +27,25 @@ Example with httpd
 
 [root@ff6625414fd4 ~]# systemctl status httpd 
 ● httpd.service - The Apache HTTP Server
-   Loaded: loaded (/usr/lib/systemd/system/httpd.service; disabled; vendor preset: not_implemented)
-   Active: active (running) since Tue Oct 24 09:23:20 2017
-/usr/bin/systemctl: line 236: [: man:httpd(8): binary operator expected
- Main PID: 5977 (httpd)
+   Loaded: loaded (/lib/systemd/system/httpd.service; disabled; vendor preset: NI)
+   Active: active (running) since Sun Mar 26 08:54:46 2023
+     Docs: man:httpd(8) man:apachectl(8)
+ Main PID: 1848 (httpd)
    Memory: 0.0%
    CGroup: /system.slice/httpd.service
-           └─5977 /usr/sbin/httpd -DFOREGROUND
+           └─1848 /usr/sbin/httpd
 
 [root@ff6625414fd4 ~]# curl -XHEADER localhost
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head>
-<title>501 Not Implemented</title>
-</head><body>
-<h1>Not Implemented</h1>
-<p>HEADER to / not supported.<br />
-</p>
-</body></html>
 
 [root@ff6625414fd4 ~]# systemctl stop httpd  
 [root@ff6625414fd4 ~]# curl -XHEADER localhost
 curl: (7) Failed connect to localhost:80; Connection refused
+```
 
+Example with httpd enable/disable
+
+```
 [root@ff6625414fd4 ~]# systemctl enable httpd
 Created symlink from /etc/systemd/system/multi-user.target.wants/httpd.service to /usr/lib/systemd/system/httpd.service.
 [root@ff6625414fd4 ~]# systemctl is-enabled httpd
@@ -68,16 +65,17 @@ Example with sshd
 
 ```
 [root@ff6625414fd4 ~]# yum install -y openssh-clients openssh-server sshpass
+
 [root@ff6625414fd4 ~]# systemctl start sshd
 [root@ff6625414fd4 ~]# systemctl status sshd
 ● sshd.service - OpenSSH server daemon
-   Loaded: loaded (/usr/lib/systemd/system/sshd.service; disabled; vendor preset: not_implemented)
-   Active: active (running) since Tue Oct 24 09:27:30 2017
-/usr/bin/systemctl: line 236: [: man:sshd(8): binary operator expected
- Main PID: 7189 (sshd)
+   Loaded: loaded (/lib/systemd/system/sshd.service; disabled; vendor preset: NI)
+   Active: active (running) since Sun Mar 26 08:43:25 2023
+     Docs: man:sshd(8) man:sshd_config(5)
+ Main PID: 977 (sshd)
    Memory: 0.0%
    CGroup: /system.slice/sshd.service
-           └─7189 /usr/sbin/sshd -D
+           └─977 /usr/sbin/sshd -D
 
 [root@ff6625414fd4 ~]# echo "root:docker" | chpasswd 
 [root@ff6625414fd4 ~]# sshpass -p docker ssh -oStrictHostKeyChecking=no localhost uptime
