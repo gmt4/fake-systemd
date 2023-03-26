@@ -12,7 +12,7 @@ PROGVERSION=v1.0;
 PROGAUTHOR=gmt4
 PROGURL="https://github.com/gmt4/fake-systemd"
 
-startstopdaemon="$(which start-stop-daemon)"
+startstopdaemon="$(command -v start-stop-daemon)"
 
 function get_unit_file(){
     for dir in ${UNIT_PATHS[@]} ; do
