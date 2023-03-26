@@ -233,6 +233,10 @@ function action_restart(){
     action_start
 }
 
+function action_show(){
+    cat $UNIT_FILE
+}
+
 function action_reload(){
     local User=$(read_option User)
     local ExecReload=$(read_multioption ExecReload)
@@ -426,10 +430,12 @@ function exec_action(){
         stop )      action_stop ;;
         restart )   action_restart ;;
         reload )    action_reload ;;
+
         enable )    action_enable ;;
         disable )   action_disable ;;
         is-active ) action_isactive ;;
         is-enabled ) action_isenabled ;;
+        show)       action_show ;;
 
         help ) >&2 echo "This command expects one or more unit names. Did you mean --help?" ; exit 1 ;;
         -h )        usage; exit 0 ;;
