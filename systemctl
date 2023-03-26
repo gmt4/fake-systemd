@@ -7,6 +7,11 @@
 # camelcase vars: systemd params var
 #
 
+PROGNAME=$(basename "$0");
+PROGVERSION=v1.0;
+PROGAUTHOR=gmt4
+PROGURL="https://github.com/gmt4/fake-systemd"
+
 startstopdaemon="$(which start-stop-daemon)"
 
 function get_unit_file(){
@@ -36,7 +41,8 @@ function read_option(){
     # TODO: Add more options from:
     # https://www.freedesktop.org/software/systemd/man/systemd.unit.html#Specifiers
 
-    if [ -n "$value" ]; then
+    if [ -n "$value" ];
+    then
         echo $value
         return
     else
@@ -302,8 +308,8 @@ function _get_pid(){
 }
 
 function action_status(){
-    local Description=$(read_option Description)
-    local Documentation=$(read_option Documentation)
+    local Description="$(read_option Description)"
+    local Documentation="$(read_option Documentation)"
 
     local color_red="\033[0;31m"
     local color_green="\033[0;32m"
@@ -327,10 +333,10 @@ function action_status(){
     echo -e "${color_curr}●${color_reset} $UNIT - $Description"
     echo -e "   Loaded: loaded ($UNIT_FILE; $isenabled; vendor preset: not_implemented)"
     echo -e "   Active: $status"
+    if [ ! -z "$Documentation" ]; then
+      echo "     Docs: $Documentation"
+    fi
     if [ $isactive == "active" ]; then
-        if [ ! -z "$Documentation" ]; then
-          echo "     Docs: $Documentation"
-        fi
         echo " Main PID: $pid ($(basename ${pscmd[0]}))"
         echo "   Memory: $psmem%"
         echo "   CGroup: /system.slice/$UNIT"
@@ -386,6 +392,7 @@ function exec_action(){
 
 function main(){
 
+    local VERSION="$PROGNAME # @version $PROGVERSION (c) $PROGAUTHOR $PROGURL"
     local USAGE="systemctl [OPTIONS...] {COMMAND} ...
 
 Query or send control commands to the systemd manager.
@@ -417,11 +424,12 @@ Unit File Commands:
     then
         case "$ACTION" in
             status|start|stop|restart|enable|disable|is-active|is-enabled) ;;
-            '')      echo -e "$USAGE" ; exit 0 ;;
-            -h)      echo -e "$USAGE" ; exit 0 ;;
-            help)    echo -e "$USAGE" ; exit 0 ;;
-            --help)  echo -e "$USAGE" ; exit 0 ;;
-            *) >&2   echo "Unknown operation $ACTION." ; exit 1 ;;
+            '')         echo -e "$USAGE" ; exit 0 ;;
+            -h)         echo -e "$USAGE" ; exit 0 ;;
+            help)       echo -e "$USAGE" ; exit 0 ;;
+            --help)     echo -e "$USAGE" ; exit 0 ;;
+            --version)  echo -e "$VERSION" ; exit 0 ;;
+            *) >&2      echo "Unknown operation $ACTION." ; exit 1 ;;
         esac
     fi
 
