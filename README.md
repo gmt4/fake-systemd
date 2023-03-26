@@ -1,4 +1,4 @@
-# Fake Systemd
+# fake-systemd
 
 This is a fork from [kvaps/fake-systemd](https://github.com/kvaps/fake-systemd).
 
