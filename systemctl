@@ -230,9 +230,9 @@ function action_enable(){
     local WANTEDBY_DIR="/etc/systemd/system/$WantedBy.wants"
 
     if [ ! -f "$WANTEDBY_DIR/$UNIT_FULL" ] ; then
-        mkdir -p $WANTEDBY_DIR
-        echo Created symlink from $WANTEDBY_DIR/$UNIT_FULL to $UNIT_FILE.
-        ln -s $UNIT_FILE $WANTEDBY_DIR/$UNIT_FULL
+        mkdir -p "$WANTEDBY_DIR"
+        echo "Created symlink from $WANTEDBY_DIR/$UNIT_FULL to $UNIT_FILE."
+        ln -s "$UNIT_FILE" "$WANTEDBY_DIR/$UNIT_FULL"
     fi
 }
 
@@ -247,9 +247,9 @@ function action_disable(){
     local WANTEDBY_DIR="/etc/systemd/system/$WantedBy.wants"
 
     if [ -f "$WANTEDBY_DIR/$UNIT_FULL" ] ; then
-        echo Removed $WANTEDBY_DIR/$UNIT_FULL.
-        rm -f $WANTEDBY_DIR/$UNIT_FULL
-        rmdir --ignore-fail-on-non-empty $WANTEDBY_DIR
+        echo "Removed $WANTEDBY_DIR/$UNIT_FULL."
+        rm -f "$WANTEDBY_DIR/$UNIT_FULL"
+        rmdir --ignore-fail-on-non-empty "$WANTEDBY_DIR"
     fi
 }
 
@@ -303,7 +303,7 @@ function _get_pid(){
     if [ ! -f "$PIDFile" ]; then
         echo "-1"
     else
-        cat $PIDFile
+        cat "$PIDFile"
     fi
 }
 
@@ -325,19 +325,19 @@ function action_status(){
         status="${color_curr}$isactive${color_reset} (Result: NI)"
     elif [ "$isactive" == "active" ]; then
         color_curr=$color_green
-        psdate=$(ps -p $pid -o lstart=)
-        pscmd=($(ps -p $pid -o cmd=))
-        psmem=$(ps -p $pid -o %mem= | tr -d ' ')
+        psdate=$(ps -p "$pid" -o lstart=)
+        pscmd=($(ps -p "$pid" -o cmd=))
+        psmem=$(ps -p "$pid" -o %mem= | tr -d ' ')
         status="${color_curr}$isactive (running)${color_reset} since $psdate"
     fi
 
     echo -e "${color_curr}●${color_reset} $UNIT - $Description"
     echo -e "   Loaded: loaded ($UNIT_FILE; $isenabled; vendor preset: NI)"
     echo -e "   Active: $status"
-    if [ ! -z "$Documentation" ]; then
+    if [ -n "$Documentation" ]; then
       echo "     Docs: $Documentation"
     fi
-    if [ $isactive == "active" ]; then
+    if [ "$isactive" == "active" ]; then
         echo " Main PID: $pid ($(basename ${pscmd[0]}))"
         echo "   Memory: $psmem%"
         echo "   CGroup: /system.slice/$UNIT"
