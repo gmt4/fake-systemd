@@ -413,9 +413,12 @@ Unit File Commands:
     echo -e "$USAGE"
 }
 
-function main(){
+function version(){
+    local VERSION="$PROGNAME (fake) # @version $PROGVERSION (c) $PROGAUTHOR $PROGURL"
+    echo -e "$VERSION"
+}
 
-    local VERSION="$PROGNAME # @version $PROGVERSION (c) $PROGAUTHOR $PROGURL"
+function main(){
 
     local ACTION="$1"
     local UNITS="${@:2}"
@@ -433,7 +436,7 @@ function main(){
             -h)         usage; exit 0 ;;
             help)       usage; exit 0 ;;
             --help)     usage; exit 0 ;;
-            --version)  echo -e "$VERSION" ; exit 0 ;;
+            --version)  version; exit 0 ;;
             *) >&2      echo "Unknown operation $ACTION." ; exit 1 ;;
         esac
     fi
