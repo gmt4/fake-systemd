@@ -18,7 +18,7 @@ startstopdaemon="$(command -v start-stop-daemon)"
 
 function get_unit_file(){
     # Check for Alias=unit.service
-    Alias=$(grep -hr "^Alias=${UNIT}" "${UNIT_PATHS[@]}" | sed -n 's/^Alias=//p')
+    Alias=$(grep -hr "^Alias=${UNIT}" "${UNIT_PATHS[@]}" 2>/dev/null | sed -n 's/^Alias=//p')
     if [ -n "$Alias" ]; then
         UNIT="$Alias"
     fi
@@ -117,7 +117,7 @@ function action_start(){
     local ExecStartPost=$(read_multioption ExecStartPost)
     local Environment=$(read_multioption Environment)
 
-    # export Environnement
+    # export Environement
     for envvar in $Environment; do
         eval $(echo "export $envvar")
     done
@@ -198,7 +198,7 @@ function action_stop(){
     [ -z "$PIDFile" ] && PIDFile="/run/${UNIT_NAME}/${UNIT_NAME}.pid"
     [ -f "$EnvironmentFile" ] && source "$EnvironmentFile"
 
-    # export Environnement
+    # export Environement
     for envvar in $Environment; do
         eval $(echo "export $envvar")
     done
@@ -239,7 +239,7 @@ function action_reload(){
     local EnvironmentFile=$(read_option EnvironmentFile | sed 's/^-//')
     local Environment=$(read_multioption Environment)
 
-    # export Environnement
+    # export Environement
     for envvar in $Environment; do
         eval $(echo "export $envvar")
     done
@@ -249,6 +249,13 @@ function action_reload(){
     cmd="${ExecReload[@]}"
     [ -n "$User" ] && cmd="runuser -m -u $User -- $cmd"
     eval "$(echo "${cmd[@]}")"
+}
+
+function action_list_units(){
+    for dir in ${UNIT_PATHS[@]} ;
+    do
+        [ -d "$dir" ] && ls -1 $dir
+    done
 }
 
 function action_enable(){
@@ -321,6 +328,14 @@ function action_isactive(){
 
 function _get_pid(){
     local PIDFile=$(read_option PIDFile)
+    local GuessMainPID=$(read_option GuessMainPID)
+    local ExecStart=($(read_option ExecStart))
+
+    GuessMainPID="${GuessMainPID:-yes}"
+    if [ "$GuessMainPID" == "yes" ];
+    then
+        pgrep -f "${ExecStart}" && return
+    fi
 
     # set default pifile
     if [ -z "$PIDFile" ];
@@ -415,6 +430,7 @@ function exec_action(){
         disable )   action_disable ;;
         is-active ) action_isactive ;;
         is-enabled ) action_isenabled ;;
+
         help ) >&2 echo "This command expects one or more unit names. Did you mean --help?" ; exit 1 ;;
         -h )        usage; exit 0 ;;
         --help )    usage; exit 0 ;;
@@ -461,7 +477,7 @@ function main(){
     local UNIT_PATHS=(
         /lib/systemd/system/
         /etc/systemd/system/
-        #/usr/lib/systemd/system/
+        /usr/lib/systemd/system/
     )
 
     if [ -z "$UNITS" ];
@@ -469,6 +485,8 @@ function main(){
         case "$ACTION" in
             status|start|stop|restart|reload) ;;
             enable|disable|is-active|is-enabled) ;;
+            show) ;;
+            list-units) action_list_units;;
             '')         usage; exit 0 ;;
             -h)         usage; exit 0 ;;
             help)       usage; exit 0 ;;
