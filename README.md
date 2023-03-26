@@ -1,6 +1,6 @@
 # Fake Systemd
 
-This is a fork from [Fake Systemd](https://github.com/kvaps/fake-systemd).
+This is a fork from [kvaps/fake-systemd](https://github.com/kvaps/fake-systemd).
 
 Simple bash script using start-stop-daemon, instead of using original systemctl + dbus + privileges + seccomp + x packages + conjunction of Mercury and Venus.
 
