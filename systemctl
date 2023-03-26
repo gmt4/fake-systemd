@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# @file systemctl-fake
+# @license MIT
 # @git: https://github.com/gmt4/fake-systemd/
 #
 # upper vars:     like UNIT* are in exec_action context
@@ -335,13 +337,13 @@ function action_status(){
     echo -e "   Loaded: loaded ($UNIT_FILE; $isenabled; vendor preset: NI)"
     echo -e "   Active: $status"
     if [ -n "$Documentation" ]; then
-      echo "     Docs: $Documentation"
+       echo "     Docs: $Documentation"
     fi
     if [ "$isactive" == "active" ]; then
-        echo " Main PID: $pid ($(basename ${pscmd[0]}))"
-        echo "   Memory: $psmem%"
-        echo "   CGroup: /system.slice/$UNIT"
-        echo "           └─$pid ${pscmd[@]}"
+       echo " Main PID: $pid ($(basename ${pscmd[0]}))"
+       echo "   Memory: $psmem%"
+       echo "   CGroup: /system.slice/$UNIT"
+       echo "           └─$pid ${pscmd[@]}"
     fi
     echo
 }
@@ -392,11 +394,13 @@ function exec_action(){
 }
 
 function usage(){
-    local USAGE="systemctl [OPTIONS...] {COMMAND} ...
+    local USAGE="$PROGNAME [OPTIONS...] {COMMAND} ...
 
 Query or send control commands to the systemd manager.
 
+Options:
   -h --help           Show this help
+  -v --version        Show this version.
 
 Unit Commands:
   start NAME...                   Start (activate) one or more units
@@ -415,7 +419,7 @@ Unit File Commands:
 }
 
 function version(){
-    local VERSION="$PROGNAME (fake) # @version $PROGVERSION (c) $PROGAUTHOR $PROGURL"
+    local VERSION="$PROGNAME # @version $PROGVERSION (c) $PROGAUTHOR $PROGURL"
     echo -e "$VERSION"
 }
 
