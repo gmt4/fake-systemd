@@ -17,8 +17,15 @@ PROGURL="https://github.com/gmt4/fake-systemd"
 startstopdaemon="$(command -v start-stop-daemon)"
 
 function get_unit_file(){
-    for dir in ${UNIT_PATHS[@]} ; do
-        if [ -f "${dir}${UNIT}" ] ; then
+    # Check for Alias=unit.service
+    Alias=$(grep -hr "^Alias=${UNIT}" "${UNIT_PATHS[@]}" | sed -n 's/^Alias=//p')
+    if [ -n "$Alias" ]; then
+        UNIT="$Alias"
+    fi
+
+    for dir in ${UNIT_PATHS[@]} ;
+    do
+        if [ -f "${dir}${UNIT}" ]; then
             echo "${dir}${UNIT}"
             break
         fi
@@ -62,13 +69,18 @@ function read_option(){
 function read_multioption(){
     local option="$1"
 
-    while IFS= read -r line; do
+    while IFS= read -r line;
+    do
         echo "$line" |
             sed -e "s/%[i]/$UNIT_INSTANCE/g" \
                 -e "s/%[I]/\"$UNIT_INSTANCE\"/g" \
                 -e "s/%[n]/$UNIT_FULL/g" \
                 -e "s/%[N]/\"$UNIT_FULL\"/g"
-    done < <( sed ':a;N;$!ba;s/\\[[:space:]]*\n//g' "$UNIT_FILE" | grep '^'$option'[= ]' | cut -d '=' -f2- | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' )
+    done < <(
+        sed ':a;N;$!ba;s/\\[[:space:]]*\n//g' "$UNIT_FILE" |
+        grep '^'$option'[= ]' | cut -d '=' -f2- |
+        sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
+    )
 
     # TODO: Add more options from:
     # https://www.freedesktop.org/software/systemd/man/systemd.unit.html#Specifiers
@@ -219,6 +231,24 @@ function action_restart(){
     action_stop
     sleep 1
     action_start
+}
+
+function action_reload(){
+    local User=$(read_option User)
+    local ExecReload=$(read_multioption ExecReload)
+    local EnvironmentFile=$(read_option EnvironmentFile | sed 's/^-//')
+    local Environment=$(read_multioption Environment)
+
+    # export Environnement
+    for envvar in $Environment; do
+        eval $(echo "export $envvar")
+    done
+
+    [ -f "$EnvironmentFile" ] && source "$EnvironmentFile"
+
+    cmd="${ExecReload[@]}"
+    [ -n "$User" ] && cmd="runuser -m -u $User -- $cmd"
+    eval "$(echo "${cmd[@]}")"
 }
 
 function action_enable(){
@@ -380,6 +410,7 @@ function exec_action(){
         start )     action_start ;;
         stop )      action_stop ;;
         restart )   action_restart ;;
+        reload )    action_reload ;;
         enable )    action_enable ;;
         disable )   action_disable ;;
         is-active ) action_isactive ;;
@@ -430,13 +461,14 @@ function main(){
     local UNIT_PATHS=(
         /lib/systemd/system/
         /etc/systemd/system/
-        /usr/lib/systemd/system/
+        #/usr/lib/systemd/system/
     )
 
     if [ -z "$UNITS" ];
     then
         case "$ACTION" in
-            status|start|stop|restart|enable|disable|is-active|is-enabled) ;;
+            status|start|stop|restart|reload) ;;
+            enable|disable|is-active|is-enabled) ;;
             '')         usage; exit 0 ;;
             -h)         usage; exit 0 ;;
             help)       usage; exit 0 ;;
