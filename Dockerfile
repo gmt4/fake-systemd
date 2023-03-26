@@ -10,7 +10,7 @@ RUN curl https://raw.githubusercontent.com/daleobrien/start-stop-daemon/master/s
     &&  gcc start-stop-daemon.c -o start-stop-daemon \
     &&  mv start-stop-daemon /usr/bin/start-stop-daemon
 
-ADD systemctl /usr/bin/systemctl-fake
+ADD systemctl-fake /usr/bin/systemctl-fake
 RUN mv /usr/bin/systemctl /usr/bin/systemctl.real \
     && ln -s /usr/bin/systemctl-fake /usr/bin/systemctl
 
