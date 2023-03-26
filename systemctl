@@ -282,7 +282,7 @@ function action_isactive(){
         echo "active"
         exit 0
     else
-        echo "failed"
+        echo "inactive"
         exit 3
     fi
 }
@@ -314,24 +314,25 @@ function action_status(){
     local color_red="\033[0;31m"
     local color_green="\033[0;32m"
     local color_reset="\033[0m"
-    local color_curr="$color_red"
+    local color_curr="$color_reset"
 
     pid=$(_get_pid)
     isenabled=$(action_isenabled)
     isactive=$(action_isactive)
     status="inactive (dead)"
-    if [ $isactive == "failed" ]; then
-        status="${color_curr}failed${color_reset} (Result: not_implemented)"
-    elif [ $isactive == "active" ]; then
+    if [ "$isactive" == "failed" ]; then
+        color_curr=$color_red
+        status="${color_curr}$isactive${color_reset} (Result: NI)"
+    elif [ "$isactive" == "active" ]; then
         color_curr=$color_green
         psdate=$(ps -p $pid -o lstart=)
         pscmd=($(ps -p $pid -o cmd=))
         psmem=$(ps -p $pid -o %mem= | tr -d ' ')
-        status="${color_curr}active (running)${color_reset} since $psdate"
+        status="${color_curr}$isactive (running)${color_reset} since $psdate"
     fi
 
     echo -e "${color_curr}●${color_reset} $UNIT - $Description"
-    echo -e "   Loaded: loaded ($UNIT_FILE; $isenabled; vendor preset: not_implemented)"
+    echo -e "   Loaded: loaded ($UNIT_FILE; $isenabled; vendor preset: NI)"
     echo -e "   Active: $status"
     if [ ! -z "$Documentation" ]; then
       echo "     Docs: $Documentation"
