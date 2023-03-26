@@ -382,17 +382,15 @@ function exec_action(){
         is-active ) action_isactive ;;
         is-enabled ) action_isenabled ;;
         help ) >&2 echo "This command expects one or more unit names. Did you mean --help?" ; exit 1 ;;
-        -h ) echo -e "$USAGE" ; exit 0 ;;
-        --help ) echo -e  "$USAGE" ; exit 0 ;;
+        -h )        usage; exit 0 ;;
+        --help )    usage; exit 0 ;;
         # exit 0 if unknown operation to avoid errors
         # like mask, unmask etc
         *) >&2 echo "Unknown operation $ACTION." ; exit 1 ;;
     esac
 }
 
-function main(){
-
-    local VERSION="$PROGNAME # @version $PROGVERSION (c) $PROGAUTHOR $PROGURL"
+function usage(){
     local USAGE="systemctl [OPTIONS...] {COMMAND} ...
 
 Query or send control commands to the systemd manager.
@@ -412,6 +410,13 @@ Unit File Commands:
   is-enabled NAME...              Check whether unit files are enabled
 "
 
+    echo -e "$USAGE"
+}
+
+function main(){
+
+    local VERSION="$PROGNAME # @version $PROGVERSION (c) $PROGAUTHOR $PROGURL"
+
     local ACTION="$1"
     local UNITS="${@:2}"
     local UNIT_PATHS=(
@@ -424,13 +429,18 @@ Unit File Commands:
     then
         case "$ACTION" in
             status|start|stop|restart|enable|disable|is-active|is-enabled) ;;
-            '')         echo -e "$USAGE" ; exit 0 ;;
-            -h)         echo -e "$USAGE" ; exit 0 ;;
-            help)       echo -e "$USAGE" ; exit 0 ;;
-            --help)     echo -e "$USAGE" ; exit 0 ;;
+            '')         usage; exit 0 ;;
+            -h)         usage; exit 0 ;;
+            help)       usage; exit 0 ;;
+            --help)     usage; exit 0 ;;
             --version)  echo -e "$VERSION" ; exit 0 ;;
             *) >&2      echo "Unknown operation $ACTION." ; exit 1 ;;
         esac
+    fi
+
+    if [ -z "$startstopdaemon" ];
+    then
+        >&2 echo "$PROGNAME: Error start-stop-daemon not found"
     fi
 
     for UNIT in ${UNITS[@]};
