@@ -235,6 +235,7 @@ function action_restart(){
 
 function action_show(){
     cat $UNIT_FILE
+    echo MainPID=$(_get_pid)
 }
 
 function action_reload(){
@@ -320,7 +321,7 @@ function action_isactive(){
     [ "$pid" == "-1" ] && echo "unknown" && exit 3
 
     # check if the pid exists - systemctl returns 3
-    [ -r /proc/$pid/status ] || kill -0 $pid > /dev/null 2>&1
+    [ -r "/proc/$pid/status" ] || kill -0 "$pid" > /dev/null 2>&1
     if [ $? -eq 0 ]; then
         echo "active"
         exit 0
@@ -338,7 +339,7 @@ function _get_pid(){
     GuessMainPID="${GuessMainPID:-yes}"
     if [ "$GuessMainPID" == "yes" ];
     then
-        pgrep -f "${ExecStart}" && return
+        pgrep --oldest -f -- "${ExecStart}" && return
     fi
 
     # set default pifile
@@ -362,8 +363,8 @@ function action_status(){
     local Description="$(read_option Description)"
     local Documentation="$(read_option Documentation)"
 
-    local color_red="\033[0;31m"
-    local color_green="\033[0;32m"
+    local color_red="\033[1;31m"
+    local color_green="\033[1;32m"
     local color_reset="\033[0m"
     local color_curr="$color_reset"
 
