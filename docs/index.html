@@ -1,4 +1,16 @@
 <html>
+<head>
+    <style type="text/css" media="all">
+    :root { --body-bg: #fff; --body-color: #111; --pre-bg:#eee; --link-color:#00f; } /* Light mode */
+    @media (prefers-color-scheme: dark) {
+       :root { --body-bg: #222; --body-color: #eee; --pre-bg:#333; --link-color:#07f; } /* Dark mode */
+    }
+    body { background: var(--body-bg); color: var(--body-color); font-family: sans-serif; }
+    code { background: var(--pre-bg); }
+    pre  { background: var(--pre-bg); }
+    a    { color: var(--link-color); }
+    </style>
+</head>
 <body>
     <h1>gmt4 fake-systemd fork</h1>
     Not much here yet.
