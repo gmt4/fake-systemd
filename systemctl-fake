@@ -404,11 +404,11 @@ function exec_action(){
 
     [[ "$UNIT" =~ '.' ]] || UNIT="$UNIT.service"
 
-    local UNIT_NAME=$(echo "$UNIT" | cut -d '.' -f1)
+    local UNIT_NAME="${UNIT%%.*}"
 
     if [[ $UNIT =~ '@' ]] ; then
-        local UNIT_INSTANCE="$(echo "$UNIT" | cut -d'@' -f2- | cut -d. -f1)"
-        local UNIT="$(echo "$UNIT" | sed "s/$UNIT_INSTANCE//")"
+        local UNIT_INSTANCE="${UNIT##*@}"
+        local UNIT="${UNIT%%$UNIT_INSTANCE}"
     fi
 
     local UNIT_FILE="$(get_unit_file "$UNIT")"
