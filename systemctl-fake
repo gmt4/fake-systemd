@@ -9,10 +9,12 @@
 # camelcase vars: systemd params var
 #
 
-PROGNAME=$(basename "$0");
-PROGVERSION=v1.0;
+PROGNAME=${0##*/}
+PROGVERSION=v1.0
 PROGAUTHOR=gmt4
 PROGURL="https://github.com/gmt4/fake-systemd"
+
+# set -euf
 
 startstopdaemon="$(command -v start-stop-daemon)"
 
@@ -256,13 +258,6 @@ function action_reload(){
     eval "$(echo "${cmd[@]}")"
 }
 
-function action_list_units(){
-    for dir in ${UNIT_PATHS[@]} ;
-    do
-        [ -d "$dir" ] && ls -1 $dir
-    done
-}
-
 function action_enable(){
     local WantedBy=$(read_option WantedBy)
 
@@ -402,6 +397,20 @@ function action_status(){
     echo
 }
 
+function action_list_units(){
+    local Description="$(read_option Description)"
+    local isenabled=$(action_isenabled)
+    local isactive=$(action_isactive)
+    printf "$UNIT\t$isenabled $isactive $Description\n"
+}
+
+function helper_list_units(){
+    for dir in ${UNIT_PATHS[@]} ;
+    do
+        [ -d "$dir" ] && ls -1 $dir
+    done
+}
+
 function exec_action(){
     local ACTION=$1
     local UNIT=$2
@@ -419,7 +428,7 @@ function exec_action(){
     if [ -z "$UNIT_FILE" ] || [ ! -f "$UNIT_FILE" ]
     then
         >&2 echo "Unit $UNIT could not be found."
-        exit 4
+        return
     fi
 
     local UNIT_FULL="$(echo "$UNIT" | sed "s/@/@$UNIT_INSTANCE/")"
@@ -441,10 +450,11 @@ function exec_action(){
         is-active ) action_isactive ;;
         is-enabled ) action_isenabled ;;
         show)       action_show ;;
+        list-units) action_list_units;;
 
-        help ) >&2 echo "This command expects one or more unit names. Did you mean --help?" ; exit 1 ;;
-        -h )        usage; exit 0 ;;
-        --help )    usage; exit 0 ;;
+        help ) >&2 echo "This command expects one or more unit names. Did you mean --help?" ; return ;;
+        -h )        usage; return 0 ;;
+        --help )    usage; return 0 ;;
         # exit 0 if unknown operation to avoid errors
         # like mask, unmask etc
         *) >&2 echo "Unknown operation $ACTION." ; exit 1 ;;
@@ -466,6 +476,7 @@ Unit Commands:
   restart NAME...                 Start or restart one or more units
   is-active PATTERN...            Check whether units are active
   status [PATTERN...|PID...]      Show runtime status of one or more units
+  list-units [UNITS...]           List runtime status of one or more units
 
 Unit File Commands:
   enable NAME...                  Enable one or more unit files
@@ -482,7 +493,6 @@ function version(){
 }
 
 function main(){
-
     local ACTION="$1"
     local UNITS="${@:2}"
     local UNIT_PATHS=(
@@ -497,7 +507,8 @@ function main(){
             status|start|stop|restart|reload) ;;
             enable|disable|is-active|is-enabled) ;;
             show) ;;
-            list-units) action_list_units;;
+            ls-units) helper_list_units;;
+            list-units) UNITS=$(helper_list_units);;
             '')         usage; exit 0 ;;
             -h)         usage; exit 0 ;;
             help)       usage; exit 0 ;;
