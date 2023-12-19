@@ -342,7 +342,7 @@ function _get_pid(){
     then
         for PIDFile in "/run/${UNIT_NAME}.pid" "/run/${UNIT_NAME}/${UNIT_NAME}.pid"
         do
-            [ -f "$PIDFile" ] && break
+            if [ -f "$PIDFile" ]; then break; fi
         done
     fi
 
@@ -357,7 +357,6 @@ function _get_pid(){
 function action_status(){
     local Description="$(read_option Description)"
     local Documentation="$(read_option Documentation)"
-    local ExecStartPre="$(read_multioption ExecStartPre)"
 
     local color_red="\033[1;31m"
     local color_green="\033[1;32m"
@@ -386,13 +385,14 @@ function action_status(){
        echo "     Docs: $Documentation"
     fi
     if [ "$isactive" == "active" ]; then
-       if [ -n "$ExecStartPre" ]; then
-       echo "  Process: $pid ExecStartPre=$ExecStartPre"
-       fi
-       echo " Main PID: $pid ($(basename ${pscmd[0]}))"
-       echo "   Memory: $psmem%"
-       echo "   CGroup: /system.slice/$UNIT"
-       echo "           └─$pid ${pscmd[@]}"
+        local ExecStartPre="$(read_multioption ExecStartPre)"
+        if [ -n "$ExecStartPre" ]; then
+            echo "  Process: $pid ExecStartPre=$ExecStartPre"
+        fi
+        echo " Main PID: $pid ($(basename ${pscmd[0]}))"
+        echo "   Memory: $psmem%"
+        echo "   CGroup: /system.slice/$UNIT"
+        echo "           └─$pid ${pscmd[@]}"
     fi
     echo
 }
