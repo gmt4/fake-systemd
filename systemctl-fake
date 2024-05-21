@@ -444,6 +444,7 @@ function exec_action(){
         stop )      action_stop ;;
         restart )   action_restart ;;
         reload )    action_reload ;;
+        daemon-reload) action_reload ;;
 
         enable )    action_enable ;;
         disable )   action_disable ;;
@@ -506,6 +507,7 @@ function main(){
         case "$ACTION" in
             status|start|stop|restart|reload) ;;
             enable|disable|is-active|is-enabled) ;;
+            daemon-reload) ;;
             show) ;;
             ls-units) helper_list_units;;
             list-units) UNITS=$(helper_list_units);;
