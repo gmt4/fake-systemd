@@ -4,28 +4,36 @@ This is a fork from [kvaps/fake-systemd](https://github.com/kvaps/fake-systemd).
 
 Simple bash script using start-stop-daemon, instead of using original systemctl + dbus + privileges + seccomp + x packages + conjunction of Mercury and Venus.
 
-## Status 
+## Status
 
 This project is effectively unmaintained. I will do my best to shepherd pull requests, but cannot guarantee a prompt response and do not have bandwidth to address issues or add new features. Please let me know via an issue if you'd be interested in taking ownership of fake-systemd.
+
+## Install
+
+```console
+curl -O https://raw.githubusercontent.com/gmt4/fake-systemd/master/systemctl-fake
+chmod u+x systemctl-fake
+./systemctl-fake
+```
 
 ## Usage
 
 The container will only compile start-stop-daemon and put the file in systemctl.
 Build
 
-    $ docker build -t ahmet2mir/fakesystemd .
+    $ docker build -t fake-systemd .
 
 Run interactive docker
 
-    $ docker run --rm -it ahmet2mir/fakesystemd bash
+    $ docker run --rm -it fake-systemd bash
 
 Example with httpd
 
-```
+```console
 [root@ff6625414fd4 /]# yum install httpd -y
 [root@ff6625414fd4 /]# systemctl start httpd
 
-[root@ff6625414fd4 ~]# systemctl status httpd 
+[root@ff6625414fd4 ~]# systemctl status httpd
 ● httpd.service - The Apache HTTP Server
    Loaded: loaded (/lib/systemd/system/httpd.service; disabled; vendor preset: NI)
    Active: active (running) since Sun Mar 26 08:54:46 2023
@@ -38,14 +46,14 @@ Example with httpd
 [root@ff6625414fd4 ~]# curl -XHEADER localhost
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
 
-[root@ff6625414fd4 ~]# systemctl stop httpd  
+[root@ff6625414fd4 ~]# systemctl stop httpd
 [root@ff6625414fd4 ~]# curl -XHEADER localhost
 curl: (7) Failed connect to localhost:80; Connection refused
 ```
 
 Example with httpd enable/disable
 
-```
+```console
 [root@ff6625414fd4 ~]# systemctl enable httpd
 Created symlink from /etc/systemd/system/multi-user.target.wants/httpd.service to /usr/lib/systemd/system/httpd.service.
 [root@ff6625414fd4 ~]# systemctl is-enabled httpd
@@ -63,7 +71,7 @@ active
 
 Example with sshd
 
-```
+```console
 [root@ff6625414fd4 ~]# yum install -y openssh-clients openssh-server sshpass
 
 [root@ff6625414fd4 ~]# systemctl start sshd
@@ -77,7 +85,7 @@ Example with sshd
    CGroup: /system.slice/sshd.service
            └─977 /usr/sbin/sshd -D
 
-[root@ff6625414fd4 ~]# echo "root:docker" | chpasswd 
+[root@ff6625414fd4 ~]# echo "root:docker" | chpasswd
 [root@ff6625414fd4 ~]# sshpass -p docker ssh -oStrictHostKeyChecking=no localhost uptime
  09:29:28 up 5 days, 18:14,  0 users,  load average: 0.00, 0.02, 0.05
 ```
@@ -96,7 +104,7 @@ Example with sshd
 
 * enable
 * disable
-* is-enabled 
+* is-enabled
 
 **Variables:**
 
@@ -168,4 +176,4 @@ Modified for Gentoo rc-scripts by Donny Davies <woodchip@gentoo.org>:
  and stuck in a #define VERSION "1.9.18".  Now it compiles without
  the whole automake/config.h dance.
 ```
-    
+
