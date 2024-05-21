@@ -21,11 +21,15 @@ chmod u+x systemctl-fake
 The container will only compile start-stop-daemon and put the file in systemctl.
 Build
 
-    $ docker build -t fake-systemd .
+```console
+$ docker build -t fake-systemd .
+```
 
 Run interactive docker
 
-    $ docker run --rm -it fake-systemd bash
+```console
+$ docker run --rm -it fake-systemd bash
+```
 
 Example with httpd
 
