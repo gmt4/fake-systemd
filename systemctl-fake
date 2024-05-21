@@ -444,7 +444,6 @@ function exec_action(){
         stop )      action_stop ;;
         restart )   action_restart ;;
         reload )    action_reload ;;
-        daemon-reload) action_reload ;;
 
         enable )    action_enable ;;
         disable )   action_disable ;;
@@ -458,8 +457,12 @@ function exec_action(){
         --help )    usage; return 0 ;;
         # exit 0 if unknown operation to avoid errors
         # like mask, unmask etc
-        *) >&2 echo "Unknown operation $ACTION." ; exit 1 ;;
+        *) action_unknown "$@" ; exit 1 ;;
     esac
+}
+
+function action_unknown(){
+    >&2 echo "$PROGNAME: Warning Unknown operation $*"
 }
 
 function usage(){
@@ -507,7 +510,7 @@ function main(){
         case "$ACTION" in
             status|start|stop|restart|reload) ;;
             enable|disable|is-active|is-enabled) ;;
-            daemon-reload) ;;
+
             show) ;;
             ls-units) helper_list_units;;
             list-units) UNITS=$(helper_list_units);;
@@ -516,7 +519,12 @@ function main(){
             help)       usage; exit 0 ;;
             --help)     usage; exit 0 ;;
             --version)  version; exit 0 ;;
-            *) >&2      echo "Unknown operation $ACTION." ; exit 1 ;;
+            *) action_unknown "$@" ; exit 1 ;;
+        esac
+    else
+        case "$ACTION" in
+            daemon-reload) action_unknown "$@"; return ;;
+            set-environment|unset-environment) action_unknown "$@"; return ;;
         esac
     fi
 
