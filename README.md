@@ -97,7 +97,7 @@ Example with sshd
  09:29:28 up 5 days, 18:14,  0 users,  load average: 0.00, 0.02, 0.05
 ```
 
-## Currently supported actions
+## Supported actions
 
 **Unit Commands:**
 
