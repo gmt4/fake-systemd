@@ -18,7 +18,7 @@ PROGURL="https://github.com/gmt4/fake-systemd"
 
 startstopdaemon="$(command -v start-stop-daemon)"
 
-function get_unit_file(){
+get_unit_file(){
     # Check for Alias=unit.service
     Alias=$(grep -hr "^Alias=${UNIT}" "${UNIT_PATHS[@]}" 2>/dev/null | sed -n 's/^Alias=//p')
     if [ -n "$Alias" ]; then
@@ -38,7 +38,7 @@ function get_unit_file(){
     done
 }
 
-function read_option(){
+read_option(){
     local option="$1"
 
     value="$(grep '^'$option'[= ]' "$UNIT_FILE" | cut -d '=' -f2- | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
@@ -68,27 +68,28 @@ function read_option(){
 
 }
 
-function read_multioption(){
+read_multioption(){
     local option="$1"
 
-    while IFS= read -r line;
-    do
-        echo "$line" |
-            sed -e "s/%[i]/$UNIT_INSTANCE/g" \
-                -e "s/%[I]/\"$UNIT_INSTANCE\"/g" \
-                -e "s/%[n]/$UNIT_FULL/g" \
-                -e "s/%[N]/\"$UNIT_FULL\"/g"
-    done < <(
+    (
         sed ':a;N;$!ba;s/\\[[:space:]]*\n//g' "$UNIT_FILE" |
         grep '^'$option'[= ]' | cut -d '=' -f2- |
         sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
-    )
+    ) |
+        while IFS= read -r line;
+        do
+            echo "$line" |
+                sed -e "s/%[i]/$UNIT_INSTANCE/g" \
+                    -e "s/%[I]/\"$UNIT_INSTANCE\"/g" \
+                    -e "s/%[n]/$UNIT_FULL/g" \
+                    -e "s/%[N]/\"$UNIT_FULL\"/g"
+        done
 
     # TODO: Add more options from:
     # https://www.freedesktop.org/software/systemd/man/systemd.unit.html#Specifiers
 }
 
-function get_unit_wants() {
+get_unit_wants() {
     sort -u <<< $(
         # Print wants from UNIT_PATHS
         for DIR in ${UNIT_PATHS[@]} ; do
@@ -102,14 +103,14 @@ function get_unit_wants() {
     )
 }
 
-function action_eval(){
+action_eval(){
     while IFS=$'\n' read -a i; do
         # ignore errors
         $(eval echo "$i") || echo
     done  <<< "${@}"
 }
 
-function action_start(){
+action_start(){
     # Start depended services
     for unit in ${UNIT_WANTS[@]}; do
         exec_action start $unit
@@ -178,7 +179,7 @@ function action_start(){
     fi
 }
 
-function action_stop(){
+action_stop(){
     # Load options
     local User=$(read_option User)
     local Type=$(read_option Type)
@@ -214,18 +215,18 @@ function action_stop(){
     action_eval "${ExecStopPost[@]}"
 }
 
-function action_restart(){
+action_restart(){
     action_stop
     sleep 1
     action_start
 }
 
-function action_show(){
+action_show(){
     cat $UNIT_FILE
     echo MainPID=$(_get_pid)
 }
 
-function action_reload(){
+action_reload(){
     local User=$(read_option User)
     local ExecReload=$(read_multioption ExecReload)
     local EnvironmentFile=$(read_option EnvironmentFile | sed 's/^-//')
@@ -243,7 +244,7 @@ function action_reload(){
     eval "$(echo "${cmd[@]}")"
 }
 
-function action_enable(){
+action_enable(){
     local WantedBy=$(read_option WantedBy)
 
     if [ -z "$WantedBy" ] ; then
@@ -260,7 +261,7 @@ function action_enable(){
     fi
 }
 
-function action_disable(){
+action_disable(){
     local WantedBy=$(read_option WantedBy)
 
     if [ -z "$WantedBy" ] ; then
@@ -277,7 +278,7 @@ function action_disable(){
     fi
 }
 
-function action_isenabled(){
+action_isenabled(){
     local WantedBy=$(read_option WantedBy)
 
     if [ -z "$WantedBy" ] ; then
@@ -294,7 +295,7 @@ function action_isenabled(){
     fi
 }
 
-function action_isactive(){
+action_isactive(){
     pid=$(_get_pid)
 
     # set default pifile
@@ -311,7 +312,7 @@ function action_isactive(){
     fi
 }
 
-function _get_pid(){
+_get_pid(){
     local PIDFile=$(read_option PIDFile)
     local GuessMainPID=$(read_option GuessMainPID)
     local ExecStart=($(read_option ExecStart))
@@ -339,7 +340,7 @@ function _get_pid(){
     fi
 }
 
-function action_status(){
+action_status(){
     local Description="$(read_option Description)"
     local Documentation="$(read_option Documentation)"
 
@@ -382,21 +383,21 @@ function action_status(){
     echo
 }
 
-function action_list_units(){
+action_list_units(){
     local Description="$(read_option Description)"
     local isenabled=$(action_isenabled)
     local isactive=$(action_isactive)
     printf "$UNIT\t$isenabled $isactive $Description\n"
 }
 
-function helper_list_units(){
+helper_list_units(){
     for dir in ${UNIT_PATHS[@]} ;
     do
         [ -d "$dir" ] && ls -1 $dir
     done
 }
 
-function exec_action(){
+exec_action(){
     local ACTION=$1
     local UNIT=$2
 
@@ -449,15 +450,15 @@ function exec_action(){
     esac
 }
 
-function action_unknown(){
+action_unknown(){
     >&2 echo "$PROGNAME: Warning unknown op $*"
 }
 
-function action_nop(){
+action_nop(){
     >&2 echo "$PROGNAME: Warning nop $*"
 }
 
-function usage(){
+usage(){
     local USAGE="$PROGNAME [OPTIONS...] {COMMAND} ...
 
 Query or send control commands to the systemd manager.
@@ -483,12 +484,12 @@ Unit File Commands:
     echo -e "$USAGE"
 }
 
-function version(){
+version(){
     local VERSION="$PROGNAME # @version $PROGVERSION (c) $PROGAUTHOR $PROGURL"
     echo -e "$VERSION"
 }
 
-function main(){
+main(){
     local ACTION="$1"
     local UNITS="${@:2}"
     local UNIT_PATHS=(
