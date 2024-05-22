@@ -469,7 +469,7 @@ function action_unknown(){
 }
 
 function action_nop(){
-    >&2 echo "$PROGNAME: Warning nop operation $*"
+    >&2 echo "$PROGNAME: Warning nop $*"
 }
 
 function usage(){
@@ -518,7 +518,7 @@ function main(){
             status|start|stop|restart|reload) ;;
             enable|disable|is-active|is-enabled) ;;
 
-            daemon-reload) action_nop "$@"; exit 0;;
+            daemon-reload) action_nop "$@"; return ;;
 
             show) ;;
             ls-units) helper_list_units;;
