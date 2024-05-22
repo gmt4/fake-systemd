@@ -13,7 +13,7 @@ This project is effectively unmaintained. I will do my best to shepherd pull req
 ```console
 curl -LO https://github.com/gmt4/fake-systemd/raw/master/systemctl-fake
 chmod u+x systemctl-fake
-bash ystemctl-fake
+bash systemctl-fake
 ```
 
 ## Usage
