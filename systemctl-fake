@@ -518,6 +518,7 @@ main(){
         esac
     else
         case "$ACTION" in
+            --system) shift; ACTION="$1"; UNITS="${@:2}" ;;
             set-environment|unset-environment) action_unknown "$@"; return ;;
         esac
     fi
