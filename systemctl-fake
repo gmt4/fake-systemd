@@ -89,7 +89,7 @@ function read_multioption(){
 }
 
 function get_unit_wants() {
-    sort -u <<< `(
+    sort -u <<< $(
         # Print wants from UNIT_PATHS
         for DIR in ${UNIT_PATHS[@]} ; do
             if [ -d "${DIR}${UNIT}.wants" ] ; then
@@ -99,7 +99,14 @@ function get_unit_wants() {
 
         # Print wants from unit-file
         read_option Wants $UNIT_FILE
-    )`
+    )
+}
+
+function action_eval(){
+    while IFS=$'\n' read -a i; do
+        # ignore errors
+        $(eval echo "$i") || echo
+    done  <<< "${@}"
 }
 
 function action_start(){
@@ -136,19 +143,10 @@ function action_start(){
     if [[ "${Type,,}" == *"oneshot"* ]]; then
         local ExecStart=$(read_multioption ExecStart)
 
-        while IFS=$'\n' read -a i; do
-            # ignore errors
-            $(eval echo "$i") || echo
-        done  <<< "${ExecStartPre[@]}"
+        action_eval "${ExecStartPre[@]}"
+        action_eval "${ExecStart[@]}"
+        action_eval "${ExecStartPost[@]}"
 
-        while IFS=$'\n' read -a i; do
-            # ignore errors
-            $(eval echo "$i") || echo
-        done  <<< "${ExecStart[@]}"
-
-        while IFS=$'\n' read -a i; do
-            $(eval echo "$i")
-        done  <<< "${ExecStartPost[@]}"
     elif [ -z "$Type" ] || [[ "${Type,,}" == *"simple"* ]] || [[ "${Type,,}" == *"notify"* ]] || [[ "${Type,,}" == *"forking"* ]] ; then
 
         makepid=""
@@ -170,17 +168,11 @@ function action_start(){
 
         cmd+=(--exec "${ExecStart[0]}" -- "${ExecStart[@]:1}")
 
-        while IFS=$'\n' read -a i; do
-            # ignore errors
-            $(eval echo "$i") || echo
-        done  <<< "${ExecStartPre[@]}"
+        action_eval "${ExecStartPre[@]}"
 
         eval "$(echo "${cmd[@]}")"
 
-        while IFS=$'\n' read -a i; do
-            # ignore errors
-            $(eval echo "$i") || echo
-        done  <<< "${ExecStartPost[@]}"
+        action_eval "${ExecStartPost[@]}"
     else
         >&2 echo "Unknown service type $Type"
     fi
@@ -215,18 +207,11 @@ function action_stop(){
         [ -n "$User" ] && cmd="runuser -m -u $User -- $cmd"
     fi
 
-
-    while IFS=$'\n' read -a i; do
-        # ignore errors
-        $(eval echo "$i") || echo
-    done  <<< "${ExecStopPre[@]}"
+    action_eval "${ExecStopPre[@]}"
 
     eval "$(echo "${cmd[@]}")"
 
-    while IFS=$'\n' read -a i; do
-        # ignore errors
-        $(eval echo "$i") || echo
-    done  <<< "${ExecStopPost[@]}"
+    action_eval "${ExecStopPost[@]}"
 }
 
 function action_restart(){
@@ -465,7 +450,7 @@ function exec_action(){
 }
 
 function action_unknown(){
-    >&2 echo "$PROGNAME: Warning Unknown operation $*"
+    >&2 echo "$PROGNAME: Warning unknown op $*"
 }
 
 function action_nop(){
