@@ -11,14 +11,15 @@ This project is effectively unmaintained. I will do my best to shepherd pull req
 ## Install
 
 ```console
-curl -O https://raw.githubusercontent.com/gmt4/fake-systemd/master/systemctl-fake
+curl -O https://github.com/gmt4/fake-systemd/raw/master/systemctl-fake
 chmod u+x systemctl-fake
-./systemctl-fake
+bash ystemctl-fake
 ```
 
 ## Usage
 
 The container will only compile start-stop-daemon and put the file in systemctl.
+
 Build
 
 ```console
