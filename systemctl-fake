@@ -445,6 +445,9 @@ function exec_action(){
         restart )   action_restart ;;
         reload )    action_reload ;;
 
+        try-restart) action_isactive && action_restart ;;
+        reload-or-restart) action_reload || action_restart ;;
+
         enable )    action_enable ;;
         disable )   action_disable ;;
         is-active ) action_isactive ;;
@@ -463,6 +466,10 @@ function exec_action(){
 
 function action_unknown(){
     >&2 echo "$PROGNAME: Warning Unknown operation $*"
+}
+
+function action_nop(){
+    t>&2 echo "$PROGNAME: Warning nop operation $*"
 }
 
 function usage(){
@@ -511,6 +518,8 @@ function main(){
             status|start|stop|restart|reload) ;;
             enable|disable|is-active|is-enabled) ;;
 
+            daemon-reload) action_nop "$@"; exit 0;;
+
             show) ;;
             ls-units) helper_list_units;;
             list-units) UNITS=$(helper_list_units);;
@@ -523,7 +532,6 @@ function main(){
         esac
     else
         case "$ACTION" in
-            daemon-reload) action_unknown "$@"; return ;;
             set-environment|unset-environment) action_unknown "$@"; return ;;
         esac
     fi
