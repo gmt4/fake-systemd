@@ -105,7 +105,7 @@ get_unit_wants() {
 
 action_eval(){
     echo "${@}" |
-        while IFS=$'\n' read -a i; do
+        while IFS=$'\n' read -r -a i; do
             # ignore errors
             $(eval echo "$i") || echo
         done
