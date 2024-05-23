@@ -152,9 +152,10 @@ If a command starts with a minus/dash, the error is ignored.
 
 # Licences
 
-`Original fake-systemd` Copyright (c) 2017 kvaps Licence MIT https://opensource.org/licenses/MIT
+- See [LICENSE](../../blob/master/LICENSE)
+- `Original fake-systemd` Copyright (c) 2017 kvaps Licence MIT https://opensource.org/licenses/MIT
+- `start-stop-daemon` is under public domain, see https://github.com/daleobrien/start-stop-daemon#notes
 
 Many thanks to Ahmet Demir [ahmet2mir](https://github.com/ahmet2mir) for many improvements and continue development this script.
 
-`start-stop-daemon` is under public domain, see https://github.com/daleobrien/start-stop-daemon#notes
 
