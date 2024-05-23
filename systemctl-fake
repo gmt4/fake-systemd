@@ -90,7 +90,7 @@ read_multioption(){
 }
 
 get_unit_wants() {
-    sort -u <<< $(
+    (
         # Print wants from UNIT_PATHS
         for DIR in ${UNIT_PATHS[@]} ; do
             if [ -d "${DIR}${UNIT}.wants" ] ; then
@@ -100,14 +100,15 @@ get_unit_wants() {
 
         # Print wants from unit-file
         read_option Wants $UNIT_FILE
-    )
+    ) | sort -u
 }
 
 action_eval(){
-    while IFS=$'\n' read -a i; do
-        # ignore errors
-        $(eval echo "$i") || echo
-    done  <<< "${@}"
+    echo "${@}" |
+        while IFS=$'\n' read -a i; do
+            # ignore errors
+            $(eval echo "$i") || echo
+        done
 }
 
 action_start(){
@@ -450,6 +451,12 @@ exec_action(){
     esac
 }
 
+action_daemonreload()
+{
+    action_nop "$@"
+    sleep 0.5
+}
+
 action_unknown(){
     >&2 echo "$PROGNAME: Warning unknown op $*"
 }
@@ -504,7 +511,7 @@ main(){
             status|start|stop|restart|reload) ;;
             enable|disable|is-active|is-enabled) ;;
 
-            daemon-reload) action_nop "$@"; return ;;
+            daemon-reload) action_daemonreload; return ;;
 
             show) ;;
             ls-units) helper_list_units;;
