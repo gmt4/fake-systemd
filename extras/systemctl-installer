@@ -1,0 +1,120 @@
+#!/bin/sh
+#
+# @file systemctl-installer
+# @version v1.0
+# @description systemctl installer
+# @author gmt4 <gmt4 at github.com> (c) Copyright 2022 GPLv2+
+# @url github.com/gmt4/systemctl
+#
+
+PROGNAME=${0##*/}
+PROGVERSION="v1.0"
+PROGAUTHOR=gmt4
+PROGURL="https://github.com/gmt4/fake-systemd"
+
+set -euf
+
+SHELL="${SHELL:-/bin/sh}"
+PREFIX="${PREFIX:-/usr/local}"
+BINDIR="${BINDIR:-$PREFIX/bin}"
+
+SCRIPT="systemctl extras/systemctl-installer"
+
+systemctl_fetch()
+{
+    mkdir -p "$BINDIR"
+    echo "Fetching systemctl from $PROGURL"
+    for script in $SCRIPT;
+    do
+        file="$BINDIR/${script##*/}"
+        url="$PROGURL/raw/master/$script"
+        echo "Fetch $file"
+        curl -fsSL -o "$file" "$url"
+        chmod u+x "$file"
+    done
+}
+
+systemctl_link()
+{
+    mkdir -p "$BINDIR"
+    for script in $SCRIPT;
+    do
+        ln -svfn "$(pwd)/$script" "$BINDIR";
+    done
+}
+
+systemctl_install()
+{
+    echo "Installing $PROGNAME ..."
+    mkdir -p "$BINDIR"
+    for script in $SCRIPT;
+    do
+        install -Dvm755 "$(pwd)/$script" "$BINDIR";
+    done
+}
+
+systemctl_uninstall()
+{
+    echo "Un-installing $PROGNAME ..."
+    for script in $SCRIPT;
+    do
+        rm -v "$BINDIR/${script##*/}";
+    done
+}
+
+systemctl_check_update()
+{
+    master=$(curl -fsSL "$PROGURL/raw/master/extras/$PROGNAME" |
+        awk '/^PROGVERSION=/ { gsub("PROGVERSION=",""); gsub("\\x22",""); print}'
+    )
+
+    if [ "$PROGVERSION" = "$master" ]
+    then
+        echo "$PROGNAME: Not-Found new version at $PROGURL (latest: $master)"
+    else
+        echo "$PROGNAME: Found new version at $PROGURL (latest: $master)"
+    fi
+}
+
+usage()
+{
+    echo "usage: $PROGNAME args # @version $PROGVERSION (c) $PROGAUTHOR $PROGURL"
+    echo "  check-update   : Check for updates"
+    echo "  fetch-user     : Fetch to BINDIR=$HOME/bin"
+    echo "  link-user      : Symlink to BINDIR=$HOME/bin"
+    echo "  install-user   : Install to BINDIR=$HOME/bin"
+    echo "  install-sys    : Install to BINDIR=$PREFIX/bin"
+    echo "  uninstall-sys  : Uninstall from BINDIR=$PREFIX/bin"
+    echo "  uninstall-user : Uninstall from BINDIR=$HOME/bin}"
+    echo "*tips: If unsure where to start, start with: $PROGNAME link-user"
+    exit
+}
+
+main()
+{
+    if [ $# -lt 1 ]; then usage; fi
+
+    # hack to force SHELL back to posix-sh in macOS
+    case "$SHELL" in *'zsh') SHELL="/bin/sh";; esac
+
+    case "$1" in
+    check-update)    shift; systemctl_check_update;;
+    fetch)           shift; systemctl_fetch "$@";;
+    link)            shift; systemctl_link "$@";;
+    install)         shift; systemctl_install "$@";;
+    uninstall)       shift; systemctl_uninstall "$@";;
+
+    fetch-user)      shift; PREFIX=$HOME $SHELL "$0" fetch;;
+    fetch-sys)       shift; PREFIX=/usr/local $SHELL "$0" fetch;;
+    link-user)       shift; PREFIX=$HOME $SHELL "$0" link;;
+    install-user)    shift; PREFIX=$HOME $SHELL "$0" install;;
+    install-sys)     shift; PREFIX=/usr/local $SHELL "$0" install;;
+
+    uninstall-user)  shift; PREFIX=$HOME $SHELL "$0" uninstall;;
+    uninstall-sys)   shift; PREFIX=/usr/local $SHELL "$0" uninstall;;
+
+    *) usage;;
+    esac
+}
+
+main "$@"
