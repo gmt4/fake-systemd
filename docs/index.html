@@ -24,6 +24,32 @@
     Head to the github repo:
     <a href="https://github.com/gmt4/fake-systemd/">https://github.com/gmt4/fake-systemd/</a>
 <hr />
+<h2 id="gmt4-systemctl-usage">Usage</h2>
+
+<pre>
+systemctl [OPTIONS...] {COMMAND} ...
+systemctl (fake) # @version v1.0 (c) gmt4 https://github.com/gmt4/fake-systemd
+
+Query or send control commands to the systemd manager.
+
+Options:
+  -h --help           Show this help
+  -v --version        Show this version.
+
+Unit Commands:
+  start NAME...                   Start (activate) one or more units
+  stop NAME...                    Stop (deactivate) one or more units
+  restart NAME...                 Start or restart one or more units
+  is-active PATTERN...            Check whether units are active
+  status [PATTERN...|PID...]      Show runtime status of one or more units
+  list-units [UNITS...]           List runtime status of one or more units
+
+Unit File Commands:
+  enable NAME...                  Enable one or more unit files
+  disable NAME...                 Disable one or more unit files
+  is-enabled NAME...              Check whether unit files are enabled
+</pre>
+
 <h2 id="gmt4-systemctl-shots">Screenshots</h2>
 
 <p>
