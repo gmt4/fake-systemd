@@ -18,21 +18,38 @@ bash systemctl
 
 ## Usage
 
-The container will only compile start-stop-daemon and put the file in systemctl.
-
-Build
-
 ```console
-$ docker build -t fake-systemd .
-```
+systemctl [OPTIONS...] {COMMAND} ...
+systemctl (fake) # @version v1.0 (c) gmt4 https://github.com/gmt4/fake-systemd
 
-Run interactive docker
+Query or send control commands to the systemd manager.
 
-```console
-$ docker run --rm -it fake-systemd bash
+Options:
+  -h --help           Show this help
+  -v --version        Show this version.
+
+Unit Commands:
+  start NAME...                   Start (activate) one or more units
+  stop NAME...                    Stop (deactivate) one or more units
+  restart NAME...                 Start or restart one or more units
+  is-active PATTERN...            Check whether units are active
+  status [PATTERN...|PID...]      Show runtime status of one or more units
+  list-units [UNITS...]           List runtime status of one or more units
+
+Unit File Commands:
+  enable NAME...                  Enable one or more unit files
+  disable NAME...                 Disable one or more unit files
+  is-enabled NAME...              Check whether unit files are enabled
 ```
 
 ## Examples
+
+Build and run interactive docker, to compile start-stop-daemon and put the file in systemctl
+
+```console
+$ docker build -t fake-systemd .
+$ docker run --rm -it fake-systemd bash
+```
 
 Example with httpd
 
