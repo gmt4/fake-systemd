@@ -20,7 +20,7 @@ bash systemctl
 
 ```console
 systemctl [OPTIONS...] {COMMAND} ...
-systemctl (fake) # @version v1.0 (c) gmt4 https://github.com/gmt4/fake-systemd
+systemctl (fake) # @version v1.0 (c) gmt4 https://github.com/gmt4/fake-systemd (forks kvaps/fake-systemd)
 
 Query or send control commands to the systemd manager.
 
