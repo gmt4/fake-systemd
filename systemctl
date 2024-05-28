@@ -493,7 +493,7 @@ Unit File Commands:
 }
 
 version(){
-    echo "$PROGNAME (fake) # @version $PROGVERSION (c) $PROGAUTHOR $PROGURL"
+    echo "$PROGNAME (fake) # @version $PROGVERSION (c) $PROGAUTHOR $PROGURL (forks kvaps/fake-systemd)"
 }
 
 main(){
