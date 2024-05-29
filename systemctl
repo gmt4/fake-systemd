@@ -2,6 +2,8 @@
 #
 # @file systemctl-fake
 # @license MIT
+# @author kvaps <kvaps at github.com> (c) Copyright 2017
+# @author gmt4 <gmt4 at github.com> (c) Copyright 2022
 # @git: https://github.com/gmt4/fake-systemd/
 #
 # upper vars:     like UNIT* are in exec_action context
