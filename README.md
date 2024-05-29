@@ -10,9 +10,11 @@ This project is effectively unmaintained. I will do my best to shepherd pull req
 
 ## Install
 
+The easiest install method is just to run the [systemctl-installer](../../blob/master/extras/systemctl-installer) to install under $HOME/bin
+
 ```console
 curl -LO https://github.com/gmt4/fake-systemd/raw/master/extras/systemctl-installer \
-  && sh ./systemctl-installer fetch
+  && sh ./systemctl-installer fetch-user
 ```
 
 ## Usage
