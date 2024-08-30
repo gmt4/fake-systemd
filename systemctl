@@ -20,18 +20,24 @@ PROGURL="https://github.com/gmt4/fake-systemd"
 
 startstopdaemon="$(command -v start-stop-daemon)"
 
+UNIT_PATHS="
+    /lib/systemd/system/
+    /etc/systemd/system/
+    /usr/lib/systemd/system/
+"
+
 warn() {
     >&2 echo "$@"
 }
 
 get_unit_file(){
     # Check for Alias=unit.service
-    Alias=$(grep -hr "^Alias=${UNIT}" "${UNIT_PATHS[@]}" 2>/dev/null | sed -n 's/^Alias=//p')
+    Alias=$(sed -n "/^Alias=${UNIT}/ s/^Alias=//p" $(for f in ${UNIT_PATHS}; do echo "$f*"; done) 2>/dev/null)
     if [ -n "$Alias" ]; then
         UNIT="$Alias"
     fi
 
-    for dir in ${UNIT_PATHS[@]};
+    for dir in ${UNIT_PATHS};
     do
         if [ -f "${dir}${UNIT}" ]; then
             echo "${dir}${UNIT}"
@@ -98,7 +104,7 @@ read_multioption(){
 get_unit_wants() {
     (
         # Print wants from UNIT_PATHS
-        for DIR in ${UNIT_PATHS[@]} ; do
+        for DIR in ${UNIT_PATHS}; do
             if [ -d "${DIR}${UNIT}.wants" ] ; then
                 ls -1 "${DIR}${UNIT}.wants/" | tr '\n' ' '
             fi
@@ -320,7 +326,7 @@ action_isactive(){
 
 _get_pid(){
     local PIDFile=$(read_option PIDFile)
-    local GuessMainPID=$(read_option GuessMainPID)
+    local GuessMainPID=${GuessMainPID:-$(read_option GuessMainPID)}
     local ExecStart=($(read_option ExecStart))
 
     GuessMainPID="${GuessMainPID:-yes}"
@@ -397,7 +403,7 @@ action_list_units(){
 }
 
 helper_list_units(){
-    for dir in ${UNIT_PATHS[@]};
+    for dir in ${UNIT_PATHS};
     do
         [ -d "$dir" ] && ls -1 $dir
     done | sort | uniq
@@ -504,11 +510,6 @@ version(){
 main(){
     local ACTION="$1"
     local UNITS="${@:2}"
-    local UNIT_PATHS=(
-        /lib/systemd/system/
-        /etc/systemd/system/
-        /usr/lib/systemd/system/
-    )
 
     if [ -z "$UNITS" ];
     then
