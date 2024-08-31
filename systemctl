@@ -329,9 +329,12 @@ _get_pid(){
     local GuessMainPID=${GuessMainPID:-$(read_option GuessMainPID)}
     local ExecStart=($(read_option ExecStart))
 
+    if [ -n "$MAINPID" ]; then
+        pid=$MAINPID && echo "$pid" && return
+    fi
+
     GuessMainPID="${GuessMainPID:-yes}"
-    if [ "$GuessMainPID" == "yes" ];
-    then
+    if [ "$GuessMainPID" == "yes" ]; then
         pid=$(pgrep --oldest -f -- "${ExecStart}")
         [ -n "$pid" ] && echo "$pid" && return
     fi
@@ -346,8 +349,7 @@ _get_pid(){
     fi
 
     # now check if the pidfile exists
-    pid="-1"
-    [ -r "$PIDFile" ] && pid=$(cat "$PIDFile")
+    [ -r "$PIDFile" ] && pid=$(cat "$PIDFile") || pid="-1"
     echo "$pid"
 }
 
@@ -461,6 +463,7 @@ exec_action(){
         # like mask, unmask etc
         *) action_unknown "$@" ; exit 1 ;;
     esac
+    MAINPID=
 }
 
 action_daemonreload()
