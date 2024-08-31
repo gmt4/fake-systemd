@@ -332,7 +332,8 @@ _get_pid(){
     GuessMainPID="${GuessMainPID:-yes}"
     if [ "$GuessMainPID" == "yes" ];
     then
-        pgrep --oldest -f -- "${ExecStart}" && return
+        pid=$(pgrep --oldest -f -- "${ExecStart}")
+        [ -n "$pid" ] && echo "$pid" && return
     fi
 
     # set default pifile
@@ -345,11 +346,9 @@ _get_pid(){
     fi
 
     # now check if the pidfile exists
-    if [ ! -f "$PIDFile" ]; then
-        echo "-1"
-    else
-        cat "$PIDFile"
-    fi
+    pid="-1"
+    [ -r "$PIDFile" ] && pid=$(cat "$PIDFile")
+    echo "$pid"
 }
 
 action_status(){
@@ -370,9 +369,11 @@ action_status(){
         status="${color_curr}$isactive${color_reset} (Result: NI)"
     elif [ "$isactive" == "active" ]; then
         color_curr=$color_green
-        psdate=$(ps -p "$pid" -o lstart=)
-        pscmd=($(ps -p "$pid" -o cmd=))
-        psmem=$(ps -p "$pid" -o %mem= | tr -d ' ')
+        psinfo=$(ps -p "$pid" -o "lstart,cmd,%mem" | awk 'NR==1{c=index($0,"CMD");m=index($0,"%MEM");} NR==2{print substr($0,0,c-1)"\t"substr($0,c,m-c)"\t"substr($0,m); }')
+        psdate=${psinfo%%	*}
+        psmem=${psinfo##*	}
+        pscmd=${psinfo%%$psmem}
+        pscmd=(${pscmd#*	})
         status="${color_curr}$isactive (running)${color_reset} since $psdate"
     fi
 
